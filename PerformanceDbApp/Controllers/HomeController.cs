@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PerformanceDbApp.Models;
+using PerformanceDbApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

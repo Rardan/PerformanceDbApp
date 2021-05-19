@@ -9,7 +9,6 @@ namespace PerformanceDbApp.Models
     {
         public string Notes { get; set; }
         public double OrderTotal { get; set; }
-        
         public List<OrderItem> OrderItems { get; set; }
     }
 }
