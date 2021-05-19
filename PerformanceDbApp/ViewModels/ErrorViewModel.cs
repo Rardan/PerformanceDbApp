@@ -1,6 +1,6 @@
 using System;
 
-namespace PerformanceDbApp.Models
+namespace PerformanceDbApp.ViewModels
 {
     public class ErrorViewModel
     {
