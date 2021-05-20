@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace PerformanceDbApp.Data
 {
-    public class Repository<T> : IRepository<T>
-        where T : AbstractDbContext
+    public class Repository<T> : IRepository<T> where T : AbstractDbContext
     {
         protected readonly T _context;
 
@@ -31,6 +30,16 @@ namespace PerformanceDbApp.Data
         public IEnumerable<Order> GetOrders()
         {
             return _context.Orders.ToList();
+        }
+
+        public IEnumerable<Order> GetOrdersWithItems()
+        {
+            return _context.Orders.Include(o => o.OrderItems).ToList();
+        }
+
+        public IEnumerable<Order> GetOrdersWithItemsAndProducts()
+        {
+            return _context.Orders.Include(o => o.OrderItems).ThenInclude(i => i.Product).ToList();
         }
 
         public Order GetOrderById(int id)

@@ -1,0 +1,32 @@
+﻿@model IEnumerable<ResultViewModel>
+@{
+    ViewData["Title"] = "Experiment Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Experiment here.</h1>
+    <p>Experiment results here.</p>
+    
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Test name</th>
+                <th>PostgreSQL</th>
+                <th>MS SQL</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.PostgreSQL.Time.ToString("0.000") ± @item.PostgreSQL.Deviation.ToString("0.000")</td>
+                <td>@item.MS_SQL.Time.ToString("0.000") ± @item.MS_SQL.Deviation.ToString("0.000")</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+

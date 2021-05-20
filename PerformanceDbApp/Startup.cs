@@ -38,6 +38,8 @@ namespace PerformanceDbApp
             services.AddScoped<IRepository<MsDbContext>, Repository<MsDbContext>>();
             services.AddScoped<IRepository<PostgresDbContext>, Repository<PostgresDbContext>>();
 
+            services.AddScoped<IExperimentRepository, ExperimentRepository>();
+
             services.AddControllersWithViews();
         }
 
