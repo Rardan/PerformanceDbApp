@@ -5,6 +5,9 @@ namespace PerformanceDbApp.Data
 {
     public interface IRepository<T> where T : AbstractDbContext
     {
+        IEnumerable<int> GetOrdersIds();
+        IEnumerable<int> GetOrdersItemsIds();
+        IEnumerable<int> GetProductsIds();
         Order CreateOrder(Order order);
         Order CreateOrderWithItems(Order order, ICollection<Product> products);
         Product CreateProduct(Product product);
@@ -14,6 +17,8 @@ namespace PerformanceDbApp.Data
         Order GetOrderById(int id);
         Order GetOrderByIdIncludeOrderItems(int id);
         Order GetOrderByIdIncludeOrderItemsAndProducts(int id);
+        public OrderItem GetOrderItemById(int id);
+        IEnumerable<OrderItem> GetOrderItems();
         IEnumerable<Order> GetOrders();
         IEnumerable<Order> GetOrdersWithItems();
         IEnumerable<Order> GetOrdersWithItemsAndProducts();

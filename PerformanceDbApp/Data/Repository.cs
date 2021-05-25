@@ -16,6 +16,21 @@ namespace PerformanceDbApp.Data
             _context = context;
         }
 
+        public IEnumerable<int> GetOrdersIds()
+        {
+            return _context.Orders.Select(o => o.Id).ToList();
+        }
+
+        public IEnumerable<int> GetOrdersItemsIds()
+        {
+            return _context.OrderItems.Select(o => o.Id).ToList();
+        }
+
+        public IEnumerable<int> GetProductsIds()
+        {
+            return _context.Products.Select(o => o.Id).ToList();
+        }
+
         // read
         public IEnumerable<Product> GetProducts()
         {
@@ -25,6 +40,16 @@ namespace PerformanceDbApp.Data
         public Product GetProductById(int id)
         {
             return _context.Products.FirstOrDefault(p => p.Id == id);
+        }
+
+        public IEnumerable<OrderItem> GetOrderItems()
+        {
+            return _context.OrderItems.ToList();
+        }
+
+        public OrderItem GetOrderItemById(int id)
+        {
+            return _context.OrderItems.FirstOrDefault(i => i.Id == id);
         }
 
         public IEnumerable<Order> GetOrders()
@@ -63,7 +88,6 @@ namespace PerformanceDbApp.Data
         }
 
         // create
-
         public Product CreateProduct(Product product)
         {
             _context.Add(product);
@@ -81,6 +105,7 @@ namespace PerformanceDbApp.Data
         public Order CreateOrderWithItems(Order order, ICollection<Product> products)
         {
             _context.Add(order);
+            _context.SaveChanges();
             foreach (var item in products)
             {
                 int amount = 1;
@@ -88,7 +113,8 @@ namespace PerformanceDbApp.Data
                 {
                     Amount = amount,
                     Price = amount * item.Price,
-                    Product = item
+                    Product = item,
+                    Order = order
                 };
                 _context.Add(orderItem);
             }
@@ -99,7 +125,6 @@ namespace PerformanceDbApp.Data
 
 
         // delete
-
         public void DeleteProduct(Product product)
         {
             _context.Remove(product);
