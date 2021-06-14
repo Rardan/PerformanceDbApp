@@ -20,7 +20,6 @@ namespace PerformanceDbApp.Data
         {
             _postgresRepository = postgresRepository;
             _msRepository = msRepository;
-            stopwatch = new Stopwatch();
         }
 
         // prepare data
@@ -67,45 +66,17 @@ namespace PerformanceDbApp.Data
         {
             for (int i = 0; i < 1000; i++)
             {
-                var order1 = new Order()
-                {
-                    Notes = StringGeneratorUtil.GenerateRandomString(),
-                    OrderTotal = 20D
-                };
+                var order1 = PrepareOrder();
 
-                var order2 = new Order()
-                {
-                    Notes = StringGeneratorUtil.GenerateRandomString(),
-                    OrderTotal = 20D
-                };
+                var order2 = PrepareOrder();
 
-                var product1 = new Product()
-                {
-                    Name = StringGeneratorUtil.GenerateRandomString(),
-                    Price = 5D,
-                    Type = StringGeneratorUtil.GenerateRandomString()
-                };
+                var product1 = PrepareProduct();
 
-                var product2 = new Product()
-                {
-                    Name = StringGeneratorUtil.GenerateRandomString(),
-                    Price = 5D,
-                    Type = StringGeneratorUtil.GenerateRandomString()
-                };
+                var product2 = PrepareProduct();
 
-                var product3 = new Product()
-                {
-                    Name = StringGeneratorUtil.GenerateRandomString(),
-                    Price = 5D,
-                    Type = StringGeneratorUtil.GenerateRandomString()
-                };
+                var product3 = PrepareProduct();
 
-                var product4 = new Product()
-                {
-                    Name = StringGeneratorUtil.GenerateRandomString(),
-                    Price = 5D,
-                    Type = StringGeneratorUtil.GenerateRandomString()
-                };
+                var product4 = PrepareProduct();
 
                 var prodPost1 = _postgresRepository.CreateProduct(product1);
                 var prodPost2 = _postgresRepository.CreateProduct(product2);
@@ -124,40 +95,60 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(SelectAllOrders),
-                PostgreSQL = SelectAllOrdersPostgres(),
-                MS_SQL = SelectAllOrdersMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    SelectAllOrdersPostgres(1),
+                    SelectAllOrdersPostgres(10),
+                    SelectAllOrdersPostgres(20),
+                    SelectAllOrdersPostgres(50),
+                    SelectAllOrdersPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    SelectAllOrdersMS(1),
+                    SelectAllOrdersMS(10),
+                    SelectAllOrdersMS(20),
+                    SelectAllOrdersMS(50),
+                    SelectAllOrdersMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult SelectAllOrdersPostgres()
+        private TimeResult SelectAllOrdersPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                stopwatch.Start();
-                var orders = _postgresRepository.GetOrders();
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _postgresRepository.GetOrders();
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult SelectAllOrdersMS()
+        private TimeResult SelectAllOrdersMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                stopwatch.Start();
-                var orders = _msRepository.GetOrders();
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.GetOrders();
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel SelectAllOrdersWithItems()
@@ -165,40 +156,60 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(SelectAllOrdersWithItems),
-                PostgreSQL = SelectAllOrdersWithItemsPostgres(),
-                MS_SQL = SelectAllOrdersWithItemsMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    SelectAllOrdersWithItemsPostgres(1),
+                    SelectAllOrdersWithItemsPostgres(10),
+                    SelectAllOrdersWithItemsPostgres(20),
+                    SelectAllOrdersWithItemsPostgres(50),
+                    SelectAllOrdersWithItemsPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    SelectAllOrdersWithItemsMS(1),
+                    SelectAllOrdersWithItemsMS(10),
+                    SelectAllOrdersWithItemsMS(20),
+                    SelectAllOrdersWithItemsMS(50),
+                    SelectAllOrdersWithItemsMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult SelectAllOrdersWithItemsPostgres()
+        private TimeResult SelectAllOrdersWithItemsPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                stopwatch.Start();
-                var orders = _postgresRepository.GetOrdersWithItems();
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _postgresRepository.GetOrdersWithItems();
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult SelectAllOrdersWithItemsMS()
+        private TimeResult SelectAllOrdersWithItemsMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                stopwatch.Start();
-                var orders = _msRepository.GetOrdersWithItems();
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.GetOrdersWithItems();
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel SelectAllOrdersWithItemsAndProducts()
@@ -206,40 +217,60 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(SelectAllOrdersWithItemsAndProducts),
-                PostgreSQL = SelectAllOrdersWithItemsAndProductsPostgres(),
-                MS_SQL = SelectAllOrdersWithItemsAndProductsMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    SelectAllOrdersWithItemsAndProductsPostgres(1),
+                    SelectAllOrdersWithItemsAndProductsPostgres(10),
+                    SelectAllOrdersWithItemsAndProductsPostgres(20),
+                    SelectAllOrdersWithItemsAndProductsPostgres(50),
+                    SelectAllOrdersWithItemsAndProductsPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    SelectAllOrdersWithItemsAndProductsMS(1),
+                    SelectAllOrdersWithItemsAndProductsMS(10),
+                    SelectAllOrdersWithItemsAndProductsMS(20),
+                    SelectAllOrdersWithItemsAndProductsMS(50),
+                    SelectAllOrdersWithItemsAndProductsMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult SelectAllOrdersWithItemsAndProductsPostgres()
+        private TimeResult SelectAllOrdersWithItemsAndProductsPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                stopwatch.Start();
-                var orders = _postgresRepository.GetOrdersWithItems();
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _postgresRepository.GetOrdersWithItems();
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult SelectAllOrdersWithItemsAndProductsMS()
+        private TimeResult SelectAllOrdersWithItemsAndProductsMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                stopwatch.Start();
-                var orders = _msRepository.GetOrdersWithItems();
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.GetOrdersWithItems();
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel SelectOrder()
@@ -247,44 +278,64 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(SelectOrder),
-                PostgreSQL = SelectOrderPostgres(),
-                MS_SQL = SelectOrderMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    SelectOrderPostgres(1),
+                    SelectOrderPostgres(10),
+                    SelectOrderPostgres(20),
+                    SelectOrderPostgres(50),
+                    SelectOrderPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    SelectOrderMS(1),
+                    SelectOrderMS(10),
+                    SelectOrderMS(20),
+                    SelectOrderMS(50),
+                    SelectOrderMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult SelectOrderPostgres()
+        private TimeResult SelectOrderPostgres(int times)
         {
             List<double> results = new List<double>();
 
+            var ids = _postgresRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
-                var ids = _postgresRepository.GetOrdersIds();
-                var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
-                stopwatch.Start();
-                var orders = _postgresRepository.GetOrderById(id);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _postgresRepository.GetOrderById(id);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult SelectOrderMS()
+        private TimeResult SelectOrderMS(int times)
         {
             List<double> results = new List<double>();
 
+            var ids = _msRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
-                var ids = _msRepository.GetOrdersIds();
-                var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
-                stopwatch.Start();
-                var orders = _msRepository.GetOrderById(id);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.GetOrderById(id);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel SelectOrderWithItems()
@@ -292,44 +343,63 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(SelectOrderWithItems),
-                PostgreSQL = SelectOrderWithItemsPostgres(),
-                MS_SQL = SelectOrderWithItemsMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    SelectOrderWithItemsPostgres(1),
+                    SelectOrderWithItemsPostgres(10),
+                    SelectOrderWithItemsPostgres(20),
+                    SelectOrderWithItemsPostgres(50),
+                    SelectOrderWithItemsPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    SelectOrderWithItemsMS(1),
+                    SelectOrderWithItemsMS(10),
+                    SelectOrderWithItemsMS(20),
+                    SelectOrderWithItemsMS(50),
+                    SelectOrderWithItemsMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult SelectOrderWithItemsPostgres()
+        private TimeResult SelectOrderWithItemsPostgres(int times)
         {
             List<double> results = new List<double>();
 
+            var ids = _postgresRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
-                var ids = _postgresRepository.GetOrdersIds();
-                var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
-                stopwatch.Start();
-                var orders = _postgresRepository.GetOrderByIdIncludeOrderItems(id);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _postgresRepository.GetOrderByIdIncludeOrderItems(id);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult SelectOrderWithItemsMS()
+        private TimeResult SelectOrderWithItemsMS(int times)
         {
             List<double> results = new List<double>();
 
+            var ids = _msRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
-                var ids = _msRepository.GetOrdersIds();
-                var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
-                stopwatch.Start();
-                var orders = _msRepository.GetOrderByIdIncludeOrderItems(id);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.GetOrderByIdIncludeOrderItems(id);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
-
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel SelectOrderWithItemsAndProducts()
@@ -337,44 +407,64 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(SelectOrderWithItemsAndProducts),
-                PostgreSQL = SelectOrderWithItemsAndProductsPostgres(),
-                MS_SQL = SelectOrderWithItemsAndProductsMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    SelectOrderWithItemsAndProductsPostgres(1),
+                    SelectOrderWithItemsAndProductsPostgres(10),
+                    SelectOrderWithItemsAndProductsPostgres(20),
+                    SelectOrderWithItemsAndProductsPostgres(50),
+                    SelectOrderWithItemsAndProductsPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    SelectOrderWithItemsAndProductsMS(1),
+                    SelectOrderWithItemsAndProductsMS(10),
+                    SelectOrderWithItemsAndProductsMS(20),
+                    SelectOrderWithItemsAndProductsMS(50),
+                    SelectOrderWithItemsAndProductsMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult SelectOrderWithItemsAndProductsPostgres()
+        private TimeResult SelectOrderWithItemsAndProductsPostgres(int times)
         {
             List<double> results = new List<double>();
 
+            var ids = _postgresRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
-                var ids = _postgresRepository.GetOrdersIds();
-                var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
-                stopwatch.Start();
-                var orders = _postgresRepository.GetOrderByIdIncludeOrderItemsAndProducts(id);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _postgresRepository.GetOrderByIdIncludeOrderItemsAndProducts(id);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult SelectOrderWithItemsAndProductsMS()
+        private TimeResult SelectOrderWithItemsAndProductsMS(int times)
         {
             List<double> results = new List<double>();
 
+            var ids = _msRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
-                var ids = _msRepository.GetOrdersIds();
-                var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
-                stopwatch.Start();
-                var orders = _msRepository.GetOrderByIdIncludeOrderItemsAndProducts(id);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.GetOrderByIdIncludeOrderItemsAndProducts(id);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         // create
@@ -383,50 +473,63 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(CreateOrder),
-                PostgreSQL = CreateOrderPostgres(),
-                MS_SQL = CreateOrderMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    CreateOrderPostgres(1),
+                    CreateOrderPostgres(10),
+                    CreateOrderPostgres(20),
+                    CreateOrderPostgres(50),
+                    CreateOrderPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    CreateOrderMS(1),
+                    CreateOrderMS(10),
+                    CreateOrderMS(20),
+                    CreateOrderMS(50),
+                    CreateOrderMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult CreateOrderPostgres()
+        private TimeResult CreateOrderPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var newOrder = new Order()
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
                 {
-                    Notes = StringGeneratorUtil.GenerateRandomString(),
-                    OrderTotal = 10D
-                };
-                stopwatch.Start();
-                var order = _postgresRepository.CreateOrder(newOrder);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                    var newOrder = PrepareOrder();
+                    stopwatch = Stopwatch.StartNew();
+                    var order = _postgresRepository.CreateOrder(newOrder);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult CreateOrderMS()
+        private TimeResult CreateOrderMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var newOrder = new Order()
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
                 {
-                    Notes = StringGeneratorUtil.GenerateRandomString(),
-                    OrderTotal = 10D
-                };
-                stopwatch.Start();
-                var order = _msRepository.CreateOrder(newOrder);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                    var newOrder = PrepareOrder();
+                    stopwatch = Stopwatch.StartNew();
+                    var order = _msRepository.CreateOrder(newOrder);
+                    stopwatch.Stop();
+                    results.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel CreateOrderAndItems()
@@ -434,66 +537,68 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(CreateOrderAndItems),
-                PostgreSQL = CreateOrderAndItemsPostgres(),
-                MS_SQL = CreateOrderAndItemsMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    CreateOrderAndItemsPostgres(1),
+                    CreateOrderAndItemsPostgres(10),
+                    CreateOrderAndItemsPostgres(20),
+                    CreateOrderAndItemsPostgres(50),
+                    CreateOrderAndItemsPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    CreateOrderAndItemsMS(1),
+                    CreateOrderAndItemsMS(10),
+                    CreateOrderAndItemsMS(20),
+                    CreateOrderAndItemsMS(50),
+                    CreateOrderAndItemsMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult CreateOrderAndItemsPostgres()
+        private TimeResult CreateOrderAndItemsPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var newOrder = new Order()
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
                 {
-                    Notes = StringGeneratorUtil.GenerateRandomString(),
-                    OrderTotal = 10D
-                };
-                var newProduct = new Product()
-                {
-                    Name = StringGeneratorUtil.GenerateRandomString(),
-                    Price = 10D,
-                    Type = StringGeneratorUtil.GenerateRandomString()
-                };
-                var product = _postgresRepository.CreateProduct(newProduct);
+                    var newOrder = PrepareOrder();
+                    var newProduct = PrepareProduct();
+                    var product = _postgresRepository.CreateProduct(newProduct);
 
-                stopwatch.Start();
-                var order = _postgresRepository.CreateOrderWithItems(newOrder, new List<Product>() { product });
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                    stopwatch = Stopwatch.StartNew();
+                    var order = _postgresRepository.CreateOrderWithItems(newOrder, new List<Product>() { product });
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult CreateOrderAndItemsMS()
+        private TimeResult CreateOrderAndItemsMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var newOrder = new Order()
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
                 {
-                    Notes = StringGeneratorUtil.GenerateRandomString(),
-                    OrderTotal = 10D
-                };
-                var newProduct = new Product()
-                {
-                    Name = StringGeneratorUtil.GenerateRandomString(),
-                    Price = 10D,
-                    Type = StringGeneratorUtil.GenerateRandomString()
-                };
-                var product = _msRepository.CreateProduct(newProduct);
+                    var newOrder = PrepareOrder();
+                    var newProduct = PrepareProduct();
+                    var product = _msRepository.CreateProduct(newProduct);
 
-                stopwatch.Start();
-                var orders = _msRepository.CreateOrderWithItems(newOrder, new List<Product>() { product });
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                    stopwatch = Stopwatch.StartNew();
+                    var orders = _msRepository.CreateOrderWithItems(newOrder, new List<Product>() { product });
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         // delete
@@ -502,44 +607,64 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(DeleteOrderItem),
-                PostgreSQL = DeleteOrderItemPostgres(),
-                MS_SQL = DeleteOrderItemMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    DeleteOrderItemPostgres(1),
+                    DeleteOrderItemPostgres(10),
+                    DeleteOrderItemPostgres(20),
+                    DeleteOrderItemPostgres(50),
+                    DeleteOrderItemPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    DeleteOrderItemMS(1),
+                    DeleteOrderItemMS(10),
+                    DeleteOrderItemMS(20),
+                    DeleteOrderItemMS(50),
+                    DeleteOrderItemMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult DeleteOrderItemPostgres()
+        private TimeResult DeleteOrderItemPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orderItems = _postgresRepository.GetOrderItems();
-                var orderItem = orderItems.ElementAt(RandomNumberUtil.GenerateFromRange(0, orderItems.Count()));
-                stopwatch.Start();
-                _postgresRepository.DeleteOrderItem(orderItem);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var orderItems = _postgresRepository.GetOrderItems();
+                    var orderItem = orderItems.ElementAt(RandomNumberUtil.GenerateFromRange(0, orderItems.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    _postgresRepository.DeleteOrderItem(orderItem);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult DeleteOrderItemMS()
+        private TimeResult DeleteOrderItemMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orderItems = _msRepository.GetOrderItems();
-                var orderItem = orderItems.ElementAt(RandomNumberUtil.GenerateFromRange(0, orderItems.Count()));
-                stopwatch.Start();
-                _msRepository.DeleteOrderItem(orderItem);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var orderItems = _msRepository.GetOrderItems();
+                    var orderItem = orderItems.ElementAt(RandomNumberUtil.GenerateFromRange(0, orderItems.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    _msRepository.DeleteOrderItem(orderItem);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel DeleteOrder()
@@ -547,44 +672,64 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(DeleteOrder),
-                PostgreSQL = DeleteOrderPostgres(),
-                MS_SQL = DeleteOrderMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    DeleteOrderPostgres(1),
+                    DeleteOrderPostgres(10),
+                    DeleteOrderPostgres(20),
+                    DeleteOrderPostgres(50),
+                    DeleteOrderPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    DeleteOrderMS(1),
+                    DeleteOrderMS(10),
+                    DeleteOrderMS(20),
+                    DeleteOrderMS(50),
+                    DeleteOrderMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult DeleteOrderPostgres()
+        private TimeResult DeleteOrderPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orders = _postgresRepository.GetOrders();
-                var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
-                stopwatch.Start();
-                _postgresRepository.DeleteOrder(order);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var orders = _postgresRepository.GetOrders();
+                    var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    _postgresRepository.DeleteOrder(order);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult DeleteOrderMS()
+        private TimeResult DeleteOrderMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orders = _msRepository.GetOrders();
-                var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
-                stopwatch.Start();
-                _msRepository.DeleteOrder(order);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var orders = _msRepository.GetOrders();
+                    var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
+                    stopwatch = Stopwatch.StartNew();
+                    _msRepository.DeleteOrder(order);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         // update
@@ -593,46 +738,66 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(UpdateOrder),
-                PostgreSQL = UpdateOrderPostgres(),
-                MS_SQL = UpdateOrderMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    UpdateOrderPostgres(1),
+                    UpdateOrderPostgres(10),
+                    UpdateOrderPostgres(20),
+                    UpdateOrderPostgres(50),
+                    UpdateOrderPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    UpdateOrderMS(1),
+                    UpdateOrderMS(10),
+                    UpdateOrderMS(20),
+                    UpdateOrderMS(50),
+                    UpdateOrderMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult UpdateOrderPostgres()
+        private TimeResult UpdateOrderPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orders = _postgresRepository.GetOrders();
-                var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
-                order.Notes = StringGeneratorUtil.GenerateRandomString();
-                stopwatch.Start();
-                _postgresRepository.UpdateOrder(order);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var orders = _postgresRepository.GetOrders();
+                    var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
+                    order.Notes = StringGeneratorUtil.GenerateRandomString();
+                    stopwatch = Stopwatch.StartNew();
+                    _postgresRepository.UpdateOrder(order);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult UpdateOrderMS()
+        private TimeResult UpdateOrderMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orders = _msRepository.GetOrders();
-                var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
-                order.Notes = StringGeneratorUtil.GenerateRandomString();
-                stopwatch.Start();
-                _msRepository.UpdateOrder(order);
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
+                {
+                    var orders = _msRepository.GetOrders();
+                    var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
+                    order.Notes = StringGeneratorUtil.GenerateRandomString();
+                    stopwatch = Stopwatch.StartNew();
+                    _msRepository.UpdateOrder(order);
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                }
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
         public ResultViewModel UpdateOrderAndItems()
@@ -640,66 +805,106 @@ namespace PerformanceDbApp.Data
             ResultViewModel resultViewModel = new ResultViewModel()
             {
                 Name = nameof(UpdateOrderAndItems),
-                PostgreSQL = UpdateOrderAndItemsPostgres(),
-                MS_SQL = UpdateOrderAndItemsMS()
+                PostgreSQL = PartialResultUtil.CreatePartialResult(
+                    UpdateOrderAndItemsPostgres(1),
+                    UpdateOrderAndItemsPostgres(10),
+                    UpdateOrderAndItemsPostgres(20),
+                    UpdateOrderAndItemsPostgres(50),
+                    UpdateOrderAndItemsPostgres(100)),
+                MS_SQL = PartialResultUtil.CreatePartialResult(
+                    UpdateOrderAndItemsMS(1),
+                    UpdateOrderAndItemsMS(10),
+                    UpdateOrderAndItemsMS(20),
+                    UpdateOrderAndItemsMS(50),
+                    UpdateOrderAndItemsMS(100))
             };
             return resultViewModel;
         }
 
-        private PartialResult UpdateOrderAndItemsPostgres()
+        private TimeResult UpdateOrderAndItemsPostgres(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orders = _postgresRepository.GetOrdersWithItems();
-                var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
-                order.Notes = StringGeneratorUtil.GenerateRandomString();
-                var orderItems = order.OrderItems;
-                foreach (var item in orderItems)
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
                 {
-                    item.Note = StringGeneratorUtil.GenerateRandomString();
-                }
+                    var orders = _postgresRepository.GetOrdersWithItems();
+                    var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
+                    order.Notes = StringGeneratorUtil.GenerateRandomString();
+                    var orderItems = order.OrderItems;
+                    foreach (var item in orderItems)
+                    {
+                        item.Note = StringGeneratorUtil.GenerateRandomString();
+                    }
 
-                stopwatch.Start();
-                _postgresRepository.UpdateOrder(order);
-                foreach (var item in orderItems)
-                {
-                    _postgresRepository.UpdateOrderItem(item);
+                    stopwatch = Stopwatch.StartNew();
+                    _postgresRepository.UpdateOrder(order);
+                    foreach (var item in orderItems)
+                    {
+                        _postgresRepository.UpdateOrderItem(item);
+                    }
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
                 }
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
         }
 
-        private PartialResult UpdateOrderAndItemsMS()
+        private TimeResult UpdateOrderAndItemsMS(int times)
         {
             List<double> results = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
-                var orders = _msRepository.GetOrdersWithItems();
-                var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
-                order.Notes = StringGeneratorUtil.GenerateRandomString();
-                var orderItems = order.OrderItems;
-                foreach (var item in orderItems)
+                List<double> time = new List<double>();
+                for (int j = 0; j < times; j++)
                 {
-                    item.Note = StringGeneratorUtil.GenerateRandomString();
-                }
+                    var orders = _msRepository.GetOrdersWithItems();
+                    var order = orders.ElementAt(RandomNumberUtil.GenerateFromRange(0, orders.Count()));
+                    order.Notes = StringGeneratorUtil.GenerateRandomString();
+                    var orderItems = order.OrderItems;
+                    foreach (var item in orderItems)
+                    {
+                        item.Note = StringGeneratorUtil.GenerateRandomString();
+                    }
 
-                stopwatch.Start();
-                _msRepository.UpdateOrder(order);
-                foreach (var item in orderItems)
-                {
-                    _msRepository.UpdateOrderItem(item);
+                    stopwatch = Stopwatch.StartNew();
+                    _msRepository.UpdateOrder(order);
+                    foreach (var item in orderItems)
+                    {
+                        _msRepository.UpdateOrderItem(item);
+                    }
+                    stopwatch.Stop();
+                    time.Add((double)stopwatch.ElapsedMilliseconds);
                 }
-                stopwatch.Stop();
-                results.Add((double)stopwatch.ElapsedMilliseconds);
+                results.Add(time.Sum());
             }
 
-            return PartialResultUtil.CreatePartialResult(results);
+            return PartialResultUtil.CreateTimeResult(results);
+        }
+
+        //---------------------------------------------------------//
+        private Order PrepareOrder()
+        {
+            return new Order()
+            {
+                Notes = StringGeneratorUtil.GenerateRandomString(),
+                OrderTotal = 20D
+            };
+        }
+
+        private Product PrepareProduct()
+        {
+            return new Product()
+            {
+                Name = StringGeneratorUtil.GenerateRandomString(),
+                Price = 5D,
+                Type = StringGeneratorUtil.GenerateRandomString()
+            };
         }
     }
 }

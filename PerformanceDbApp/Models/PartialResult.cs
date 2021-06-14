@@ -7,7 +7,11 @@ namespace PerformanceDbApp.Models
 {
     public class PartialResult
     {
-        public double Time { get; set; }
-        public double Deviation { get; set; }
+        public TimeResult Result1 { get; set; }
+        public TimeResult Result10 { get; set; }
+        public TimeResult Result20 { get; set; }
+        public TimeResult Result50 { get; set; }
+        public TimeResult Result100 { get; set; }
+
     }
 }

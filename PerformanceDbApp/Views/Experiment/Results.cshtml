@@ -6,26 +6,138 @@
 <div class="text-center">
     <h1 class="display-4">Experiment here.</h1>
     <p>Experiment results here.</p>
-    
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Test name</th>
-                <th>PostgreSQL</th>
-                <th>MS SQL</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.PostgreSQL.Time.ToString("0.000") ± @item.PostgreSQL.Deviation.ToString("0.000")</td>
-                <td>@item.MS_SQL.Time.ToString("0.000") ± @item.MS_SQL.Deviation.ToString("0.000")</td>
-            </tr>
-            }
-        </tbody>
-    </table>
+
+    <div>
+        <h3>Combined results</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Test name</th>
+                    <th colspan="5">PSQL</th>
+                    <th colspan="5">MS SQL</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>1</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>50</th>
+                    <th>100</th>
+                    <th>1</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>50</th>
+                    <th>100</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.PostgreSQL.Result1.Time.ToString("0.000") ± @item.PostgreSQL.Result1.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result20.Time.ToString("0.000") ± @item.PostgreSQL.Result10.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result50.Time.ToString("0.000") ± @item.PostgreSQL.Result20.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result50.Time.ToString("0.000") ± @item.PostgreSQL.Result50.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result100.Time.ToString("0.000") ± @item.PostgreSQL.Result100.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result1.Time.ToString("0.000") ± @item.MS_SQL.Result1.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result10.Time.ToString("0.000") ± @item.MS_SQL.Result10.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result20.Time.ToString("0.000") ± @item.MS_SQL.Result20.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result50.Time.ToString("0.000") ± @item.MS_SQL.Result50.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result100.Time.ToString("0.000") ± @item.MS_SQL.Result100.Deviation.ToString("0.000")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h3>Only time</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Test name</th>
+                    <th colspan="5">PSQL</th>
+                    <th colspan="5">MS SQL</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>1</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>50</th>
+                    <th>100</th>
+                    <th>1</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>50</th>
+                    <th>100</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.PostgreSQL.Result1.Time.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result20.Time.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result50.Time.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result50.Time.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result100.Time.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result1.Time.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result10.Time.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result20.Time.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result50.Time.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result100.Time.ToString("0.000")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h3>Only deviation</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Test name</th>
+                    <th colspan="5">PSQL</th>
+                    <th colspan="5">MS SQL</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>1</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>50</th>
+                    <th>100</th>
+                    <th>1</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>50</th>
+                    <th>100</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.PostgreSQL.Result1.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result20.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result50.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result50.Deviation.ToString("0.000")</td>
+                        <td>@item.PostgreSQL.Result100.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result1.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result10.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result20.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result50.Deviation.ToString("0.000")</td>
+                        <td>@item.MS_SQL.Result100.Deviation.ToString("0.000")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
 </div>
 

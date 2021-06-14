@@ -18,63 +18,93 @@ namespace PerformanceDbApp.Data
 
         public IEnumerable<int> GetOrdersIds()
         {
-            return _context.Orders.Select(o => o.Id).ToList();
+            return _context.Orders
+                .AsNoTracking()
+                .Select(o => o.Id)
+                .ToList();
         }
 
         public IEnumerable<int> GetOrdersItemsIds()
         {
-            return _context.OrderItems.Select(o => o.Id).ToList();
+            return _context.OrderItems
+                .AsNoTracking()
+                .Select(o => o.Id)
+                .ToList();
         }
 
         public IEnumerable<int> GetProductsIds()
         {
-            return _context.Products.Select(o => o.Id).ToList();
+            return _context.Products
+                .AsNoTracking()
+                .Select(o => o.Id)
+                .ToList();
         }
 
         // read
         public IEnumerable<Product> GetProducts()
         {
-            return _context.Products.ToList();
+            return _context.Products
+                .AsNoTracking()
+                .ToList();
         }
 
         public Product GetProductById(int id)
         {
-            return _context.Products.FirstOrDefault(p => p.Id == id);
+            return _context.Products
+                .AsNoTracking()
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public IEnumerable<OrderItem> GetOrderItems()
         {
-            return _context.OrderItems.ToList();
+            return _context.OrderItems
+                .AsNoTracking()
+                .ToList();
         }
 
         public OrderItem GetOrderItemById(int id)
         {
-            return _context.OrderItems.FirstOrDefault(i => i.Id == id);
+            return _context.OrderItems
+                .AsNoTracking()
+                .AsNoTracking()
+                .FirstOrDefault(i => i.Id == id);
         }
 
         public IEnumerable<Order> GetOrders()
         {
-            return _context.Orders.ToList();
+            return _context.Orders
+                .AsNoTracking()
+                .ToList();
         }
 
         public IEnumerable<Order> GetOrdersWithItems()
         {
-            return _context.Orders.Include(o => o.OrderItems).ToList();
+            return _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderItems)
+                .ToList();
         }
 
         public IEnumerable<Order> GetOrdersWithItemsAndProducts()
         {
-            return _context.Orders.Include(o => o.OrderItems).ThenInclude(i => i.Product).ToList();
+            return _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderItems)
+                .ThenInclude(i => i.Product)
+                .ToList();
         }
 
         public Order GetOrderById(int id)
         {
-            return _context.Orders.FirstOrDefault(o => o.Id == id);
+            return _context.Orders
+                .AsNoTracking()
+                .FirstOrDefault(o => o.Id == id);
         }
 
         public Order GetOrderByIdIncludeOrderItems(int id)
         {
             return _context.Orders
+                .AsNoTracking()
                 .Include(o => o.OrderItems)
                 .FirstOrDefault(o => o.Id == id);
         }
@@ -82,6 +112,7 @@ namespace PerformanceDbApp.Data
         public Order GetOrderByIdIncludeOrderItemsAndProducts(int id)
         {
             return _context.Orders
+                .AsNoTracking()
                 .Include(o => o.OrderItems)
                 .ThenInclude(i => i.Product)
                 .FirstOrDefault(o => o.Id == id);
