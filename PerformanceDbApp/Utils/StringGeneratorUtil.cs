@@ -15,5 +15,19 @@ namespace PerformanceDbApp.Utils
             return new string(Enumerable.Repeat(chars, random.Next(1, length))
                 .Select(c => c[random.Next(c.Length)]).ToArray());
         }
+
+        public static string GenerateOrderNumber()
+        {
+            DateTime dateTime = DateTime.Now;
+            int randomNumber = RandomNumberUtil.GenerateFromRange(0, 1000);
+            return dateTime.Year.ToString() +
+                dateTime.Month.ToString() +
+                dateTime.Day.ToString() +
+                dateTime.Hour.ToString() +
+                dateTime.Minute.ToString() +
+                dateTime.Second.ToString() +
+                dateTime.Millisecond.ToString() +
+                randomNumber.ToString();
+        }
     }
 }

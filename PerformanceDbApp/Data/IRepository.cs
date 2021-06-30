@@ -8,6 +8,7 @@ namespace PerformanceDbApp.Data
         IEnumerable<int> GetOrdersIds();
         IEnumerable<int> GetOrdersItemsIds();
         IEnumerable<int> GetProductsIds();
+        IEnumerable<string> GetOrderNumbers();
         Order CreateOrder(Order order);
         Order CreateOrderWithItems(Order order, ICollection<Product> products);
         Product CreateProduct(Product product);
@@ -27,5 +28,8 @@ namespace PerformanceDbApp.Data
         Order UpdateOrder(Order order);
         OrderItem UpdateOrderItem(OrderItem orderItem);
         Product UpdateProduct(Product product);
+        Order GetOrderByNumber(string number);
+        Order GetOrderByNumberIncludeOrderItems(string number);
+        Order GetOrderByNumberIncludeOrderItemsAndProducts(string number);
     }
 }

@@ -25,8 +25,8 @@ namespace PerformanceDbApp.Utils
         {
             return new TimeResult
             {
-                Time = Math.Round(values.Average(), 3),
-                Deviation = Math.Round(StatisticsUtil.StandardDeviation(values), 3)
+                Time = values.Average(),
+                Deviation = StatisticsUtil.StandardDeviation(values)
             };
         }
     }

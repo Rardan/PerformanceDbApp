@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PerformanceDbApp.Data;
 
 namespace PerformanceDbApp.Migrations
 {
     [DbContext(typeof(MsDbContext))]
-    partial class MsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210615225647_number")]
+    partial class number
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

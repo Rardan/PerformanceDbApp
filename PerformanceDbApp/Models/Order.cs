@@ -7,6 +7,7 @@ namespace PerformanceDbApp.Models
 {
     public class Order : AbstractObject
     {
+        public string Number { get; set; }
         public string Notes { get; set; }
         public double OrderTotal { get; set; }
         public List<OrderItem> OrderItems { get; set; }

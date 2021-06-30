@@ -25,16 +25,16 @@ namespace PerformanceDbApp.Data
         // prepare data
         public void DeleteAllData()
         {
-            var ordersPostgres = _postgresRepository.GetOrders();
-            foreach (var item in ordersPostgres)
-            {
-                _postgresRepository.DeleteOrder(item);
-            }
-
             var orderItemsPostgres = _postgresRepository.GetOrderItems();
             foreach (var item in orderItemsPostgres)
             {
                 _postgresRepository.DeleteOrderItem(item);
+            }
+
+            var ordersPostgres = _postgresRepository.GetOrders();
+            foreach (var item in ordersPostgres)
+            {
+                _postgresRepository.DeleteOrder(item);
             }
 
             var productsPostgres = _postgresRepository.GetProducts();
@@ -43,16 +43,16 @@ namespace PerformanceDbApp.Data
                 _postgresRepository.DeleteProduct(item);
             }
 
-            var ordersMS = _msRepository.GetOrders();
-            foreach (var item in ordersMS)
-            {
-                _msRepository.DeleteOrder(item);
-            }
-
             var orderItemsMS = _msRepository.GetOrderItems();
             foreach (var item in orderItemsMS)
             {
                 _msRepository.DeleteOrderItem(item);
+            }
+
+            var ordersMS = _msRepository.GetOrders();
+            foreach (var item in ordersMS)
+            {
+                _msRepository.DeleteOrder(item);
             }
 
             var productsMS = _msRepository.GetProducts();
@@ -66,26 +66,25 @@ namespace PerformanceDbApp.Data
         {
             for (int i = 0; i < 1000; i++)
             {
-                var order1 = PrepareOrder();
-
-                var order2 = PrepareOrder();
-
                 var product1 = PrepareProduct();
-
                 var product2 = PrepareProduct();
 
-                var product3 = PrepareProduct();
+                _postgresRepository.CreateProduct(product1);
+                _msRepository.CreateProduct(product2);
+            }
 
-                var product4 = PrepareProduct();
+            var postgresProductsIds = _postgresRepository.GetProducts().Select(p => p.Id).ToList();
+            var msProductsIds = _msRepository.GetProducts().Select(p => p.Id).ToList();
+            for (int i = 0; i < 5000; i++)
+            {
+                var order1 = PrepareOrder();
+                var order2 = PrepareOrder();
 
-                var prodPost1 = _postgresRepository.CreateProduct(product1);
-                var prodPost2 = _postgresRepository.CreateProduct(product2);
+                var productP = _postgresRepository.GetProductById(postgresProductsIds.ElementAt(RandomNumberUtil.GenerateFromRange(0, postgresProductsIds.Count())));
+                var productM = _msRepository.GetProductById(msProductsIds.ElementAt(RandomNumberUtil.GenerateFromRange(0, msProductsIds.Count())));
 
-                var prodMS1 = _msRepository.CreateProduct(product3);
-                var prodMS2 = _msRepository.CreateProduct(product4);
-
-                _postgresRepository.CreateOrderWithItems(order1, new List<Product>() { prodPost1, prodPost2 });
-                _msRepository.CreateOrderWithItems(order2, new List<Product>() { prodMS1, prodMS2 });
+                _postgresRepository.CreateOrderWithItems(order1, new List<Product>() { productP });
+                _msRepository.CreateOrderWithItems(order2, new List<Product>() { productM });
             }
         }
 
@@ -121,9 +120,9 @@ namespace PerformanceDbApp.Data
                 for (int j = 0; j < times; j++)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _postgresRepository.GetOrders();
+                    var orders = _postgresRepository.GetOrders().ToList();
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -141,9 +140,9 @@ namespace PerformanceDbApp.Data
                 for (int j = 0; j < times; j++)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _msRepository.GetOrders();
+                    var orders = _msRepository.GetOrders().ToList();
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -182,9 +181,9 @@ namespace PerformanceDbApp.Data
                 for (int j = 0; j < times; j++)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _postgresRepository.GetOrdersWithItems();
+                    var orders = _postgresRepository.GetOrdersWithItems().ToList();
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -202,9 +201,9 @@ namespace PerformanceDbApp.Data
                 for (int j = 0; j < times; j++)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _msRepository.GetOrdersWithItems();
+                    var orders = _msRepository.GetOrdersWithItems().ToList();
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -243,9 +242,9 @@ namespace PerformanceDbApp.Data
                 for (int j = 0; j < times; j++)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _postgresRepository.GetOrdersWithItems();
+                    var orders = _postgresRepository.GetOrdersWithItemsAndProducts().ToList();
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -263,9 +262,9 @@ namespace PerformanceDbApp.Data
                 for (int j = 0; j < times; j++)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _msRepository.GetOrdersWithItems();
+                    var orders = _msRepository.GetOrdersWithItemsAndProducts().ToList();
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -298,17 +297,18 @@ namespace PerformanceDbApp.Data
         {
             List<double> results = new List<double>();
 
-            var ids = _postgresRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
+                
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
-                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    var numbers = _postgresRepository.GetOrderNumbers();
+                    var num = numbers.ElementAt(RandomNumberUtil.GenerateFromRange(0, numbers.Count()));
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _postgresRepository.GetOrderById(id);
+                    var order = _postgresRepository.GetOrderByNumber(num);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -320,17 +320,17 @@ namespace PerformanceDbApp.Data
         {
             List<double> results = new List<double>();
 
-            var ids = _msRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
-                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    var numbers = _msRepository.GetOrderNumbers();
+                    var num = numbers.ElementAt(RandomNumberUtil.GenerateFromRange(0, numbers.Count()));
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _msRepository.GetOrderById(id);
+                    var order = _msRepository.GetOrderByNumber(num);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -363,17 +363,17 @@ namespace PerformanceDbApp.Data
         {
             List<double> results = new List<double>();
 
-            var ids = _postgresRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
-                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    var numbers = _postgresRepository.GetOrderNumbers();
+                    var num = numbers.ElementAt(RandomNumberUtil.GenerateFromRange(0, numbers.Count()));
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _postgresRepository.GetOrderByIdIncludeOrderItems(id);
+                    var orders = _postgresRepository.GetOrderByNumberIncludeOrderItems(num);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -385,17 +385,17 @@ namespace PerformanceDbApp.Data
         {
             List<double> results = new List<double>();
 
-            var ids = _msRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
-                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    var numbers = _msRepository.GetOrderNumbers();
+                    var num = numbers.ElementAt(RandomNumberUtil.GenerateFromRange(0, numbers.Count()));
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _msRepository.GetOrderByIdIncludeOrderItems(id);
+                    var orders = _msRepository.GetOrderByNumberIncludeOrderItems(num);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -427,17 +427,17 @@ namespace PerformanceDbApp.Data
         {
             List<double> results = new List<double>();
 
-            var ids = _postgresRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
+                var numbers = _postgresRepository.GetOrderNumbers();
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
-                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    var num = numbers.ElementAt(RandomNumberUtil.GenerateFromRange(0, numbers.Count()));
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _postgresRepository.GetOrderByIdIncludeOrderItemsAndProducts(id);
+                    var orders = _postgresRepository.GetOrderByNumberIncludeOrderItemsAndProducts(num);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -449,17 +449,17 @@ namespace PerformanceDbApp.Data
         {
             List<double> results = new List<double>();
 
-            var ids = _msRepository.GetOrdersIds();
             for (int i = 0; i < count; i++)
             {
+                var numbers = _msRepository.GetOrderNumbers();
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
-                    var id = ids.FirstOrDefault(i => i == RandomNumberUtil.GenerateFromRange(0, ids.Count()));
+                    var num = numbers.ElementAt(RandomNumberUtil.GenerateFromRange(0, numbers.Count()));
                     stopwatch = Stopwatch.StartNew();
-                    var orders = _msRepository.GetOrderByIdIncludeOrderItemsAndProducts(id);
+                    var orders = _msRepository.GetOrderByNumberIncludeOrderItemsAndProducts(num);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -502,7 +502,7 @@ namespace PerformanceDbApp.Data
                     stopwatch = Stopwatch.StartNew();
                     var order = _postgresRepository.CreateOrder(newOrder);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -523,8 +523,7 @@ namespace PerformanceDbApp.Data
                     stopwatch = Stopwatch.StartNew();
                     var order = _msRepository.CreateOrder(newOrder);
                     stopwatch.Stop();
-                    results.Add((double)stopwatch.ElapsedMilliseconds);
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -559,17 +558,16 @@ namespace PerformanceDbApp.Data
 
             for (int i = 0; i < count; i++)
             {
+                var products = _postgresRepository.GetProducts();
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
                     var newOrder = PrepareOrder();
-                    var newProduct = PrepareProduct();
-                    var product = _postgresRepository.CreateProduct(newProduct);
-
+                    var product = products.ElementAt(RandomNumberUtil.GenerateFromRange(0, products.Count()));
                     stopwatch = Stopwatch.StartNew();
                     var order = _postgresRepository.CreateOrderWithItems(newOrder, new List<Product>() { product });
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -583,17 +581,16 @@ namespace PerformanceDbApp.Data
 
             for (int i = 0; i < count; i++)
             {
+                var products = _msRepository.GetProducts();
                 List<double> time = new List<double>();
                 for (int j = 0; j < times; j++)
                 {
                     var newOrder = PrepareOrder();
-                    var newProduct = PrepareProduct();
-                    var product = _msRepository.CreateProduct(newProduct);
-
+                    var product = products.ElementAt(RandomNumberUtil.GenerateFromRange(0, products.Count()));
                     stopwatch = Stopwatch.StartNew();
                     var orders = _msRepository.CreateOrderWithItems(newOrder, new List<Product>() { product });
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -634,10 +631,13 @@ namespace PerformanceDbApp.Data
                 {
                     var orderItems = _postgresRepository.GetOrderItems();
                     var orderItem = orderItems.ElementAt(RandomNumberUtil.GenerateFromRange(0, orderItems.Count()));
+                    var product = _postgresRepository.GetProductById(orderItem.ProductId);
                     stopwatch = Stopwatch.StartNew();
                     _postgresRepository.DeleteOrderItem(orderItem);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
+
+                    _postgresRepository.CreateOrderWithItems(PrepareOrder(), new List<Product>() { product });
                 }
                 results.Add(time.Sum());
             }
@@ -656,10 +656,13 @@ namespace PerformanceDbApp.Data
                 {
                     var orderItems = _msRepository.GetOrderItems();
                     var orderItem = orderItems.ElementAt(RandomNumberUtil.GenerateFromRange(0, orderItems.Count()));
+                    var product = _msRepository.GetProductById(orderItem.ProductId);
                     stopwatch = Stopwatch.StartNew();
                     _msRepository.DeleteOrderItem(orderItem);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
+
+                    _msRepository.CreateOrderWithItems(PrepareOrder(), new List<Product>() { product });
                 }
                 results.Add(time.Sum());
             }
@@ -702,7 +705,11 @@ namespace PerformanceDbApp.Data
                     stopwatch = Stopwatch.StartNew();
                     _postgresRepository.DeleteOrder(order);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
+
+                    var products = _postgresRepository.GetProducts();
+                    var product = products.ElementAt(RandomNumberUtil.GenerateFromRange(0, products.Count()));
+                    _postgresRepository.CreateOrderWithItems(PrepareOrder(), new List<Product>() { product });
                 }
                 results.Add(time.Sum());
             }
@@ -724,7 +731,11 @@ namespace PerformanceDbApp.Data
                     stopwatch = Stopwatch.StartNew();
                     _msRepository.DeleteOrder(order);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
+
+                    var products = _msRepository.GetProducts();
+                    var product = products.ElementAt(RandomNumberUtil.GenerateFromRange(0, products.Count()));
+                    _msRepository.CreateOrderWithItems(PrepareOrder(), new List<Product>() { product });
                 }
                 results.Add(time.Sum());
             }
@@ -769,7 +780,7 @@ namespace PerformanceDbApp.Data
                     stopwatch = Stopwatch.StartNew();
                     _postgresRepository.UpdateOrder(order);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -792,7 +803,7 @@ namespace PerformanceDbApp.Data
                     stopwatch = Stopwatch.StartNew();
                     _msRepository.UpdateOrder(order);
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -846,7 +857,7 @@ namespace PerformanceDbApp.Data
                         _postgresRepository.UpdateOrderItem(item);
                     }
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -879,7 +890,7 @@ namespace PerformanceDbApp.Data
                         _msRepository.UpdateOrderItem(item);
                     }
                     stopwatch.Stop();
-                    time.Add((double)stopwatch.ElapsedMilliseconds);
+                    time.Add((double)stopwatch.Elapsed.TotalMilliseconds);
                 }
                 results.Add(time.Sum());
             }
@@ -892,6 +903,7 @@ namespace PerformanceDbApp.Data
         {
             return new Order()
             {
+                Number = StringGeneratorUtil.GenerateOrderNumber(),
                 Notes = StringGeneratorUtil.GenerateRandomString(),
                 OrderTotal = 20D
             };

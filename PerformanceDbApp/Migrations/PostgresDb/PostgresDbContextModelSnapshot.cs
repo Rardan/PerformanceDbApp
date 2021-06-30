@@ -28,6 +28,9 @@ namespace PerformanceDbApp.Migrations.PostgresDb
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
+                    b.Property<string>("Number")
+                        .HasColumnType("text");
+
                     b.Property<double>("OrderTotal")
                         .HasColumnType("double precision");
 

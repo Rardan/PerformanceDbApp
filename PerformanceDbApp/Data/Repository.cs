@@ -19,7 +19,7 @@ namespace PerformanceDbApp.Data
         public IEnumerable<int> GetOrdersIds()
         {
             return _context.Orders
-                .AsNoTracking()
+                //.AsNoTracking()
                 .Select(o => o.Id)
                 .ToList();
         }
@@ -27,7 +27,7 @@ namespace PerformanceDbApp.Data
         public IEnumerable<int> GetOrdersItemsIds()
         {
             return _context.OrderItems
-                .AsNoTracking()
+                //.AsNoTracking()
                 .Select(o => o.Id)
                 .ToList();
         }
@@ -35,8 +35,16 @@ namespace PerformanceDbApp.Data
         public IEnumerable<int> GetProductsIds()
         {
             return _context.Products
-                .AsNoTracking()
+                //.AsNoTracking()
                 .Select(o => o.Id)
+                .ToList();
+        }
+
+        public IEnumerable<string> GetOrderNumbers()
+        {
+            return _context.Orders
+                //.AsNoTracking()
+                .Select(o => o.Number)
                 .ToList();
         }
 
@@ -44,78 +52,112 @@ namespace PerformanceDbApp.Data
         public IEnumerable<Product> GetProducts()
         {
             return _context.Products
-                .AsNoTracking()
+                //.AsNoTracking()
                 .ToList();
         }
 
         public Product GetProductById(int id)
         {
             return _context.Products
-                .AsNoTracking()
+                //.AsNoTracking()
                 .FirstOrDefault(p => p.Id == id);
         }
 
         public IEnumerable<OrderItem> GetOrderItems()
         {
-            return _context.OrderItems
-                .AsNoTracking()
+           var orderItems = _context.OrderItems
+                //.AsNoTracking()
                 .ToList();
+            return orderItems;
         }
 
         public OrderItem GetOrderItemById(int id)
         {
-            return _context.OrderItems
-                .AsNoTracking()
-                .AsNoTracking()
+            var orderItem = _context.OrderItems
+                //.AsNoTracking()
                 .FirstOrDefault(i => i.Id == id);
+            return orderItem;
         }
 
         public IEnumerable<Order> GetOrders()
         {
-            return _context.Orders
-                .AsNoTracking()
+            var orders = _context.Orders
+                //.AsNoTracking()
                 .ToList();
+            return orders;
         }
 
         public IEnumerable<Order> GetOrdersWithItems()
         {
-            return _context.Orders
-                .AsNoTracking()
-                .Include(o => o.OrderItems)
+            var orders = _context.Orders
+                //.AsNoTracking()
+                .Include("OrderItems")
                 .ToList();
+            return orders;
         }
 
         public IEnumerable<Order> GetOrdersWithItemsAndProducts()
         {
-            return _context.Orders
-                .AsNoTracking()
-                .Include(o => o.OrderItems)
-                .ThenInclude(i => i.Product)
+            var orders = _context.Orders
+                //.AsNoTracking()
+                .Include("OrderItems")
+                .Include("OrderItems.Product")
                 .ToList();
+            return orders;
+        }
+
+        public Order GetOrderByNumber(string number)
+        {
+            var order = _context.Orders
+                //.AsNoTracking()
+                .FirstOrDefault(o => o.Number == number);
+            return order;
+        }
+
+        public Order GetOrderByNumberIncludeOrderItems(string number)
+        {
+            var order = _context.Orders
+                //.AsNoTracking()
+                .Include("OrderItems")
+                .FirstOrDefault(o => o.Number == number);
+            return order;
+        }
+
+        public Order GetOrderByNumberIncludeOrderItemsAndProducts(string number)
+        {
+            var order = _context.Orders
+                //.AsNoTracking()
+                .Include("OrderItems")
+                .Include("OrderItems.Product")
+                .FirstOrDefault(o => o.Number == number);
+            return order;
         }
 
         public Order GetOrderById(int id)
         {
-            return _context.Orders
-                .AsNoTracking()
+            var order = _context.Orders
+                //.AsNoTracking()
                 .FirstOrDefault(o => o.Id == id);
+            return order;
         }
 
         public Order GetOrderByIdIncludeOrderItems(int id)
         {
-            return _context.Orders
-                .AsNoTracking()
-                .Include(o => o.OrderItems)
+            var order = _context.Orders
+                //.AsNoTracking()
+                .Include("OrderItems")
                 .FirstOrDefault(o => o.Id == id);
+            return order;
         }
 
         public Order GetOrderByIdIncludeOrderItemsAndProducts(int id)
         {
-            return _context.Orders
-                .AsNoTracking()
-                .Include(o => o.OrderItems)
-                .ThenInclude(i => i.Product)
+            var order = _context.Orders
+                //.AsNoTracking()
+                .Include("OrderItems")
+                .Include("OrderItems.Product")
                 .FirstOrDefault(o => o.Id == id);
+            return order;
         }
 
         // create
@@ -144,10 +186,10 @@ namespace PerformanceDbApp.Data
                 {
                     Amount = amount,
                     Price = amount * item.Price,
-                    Product = item,
-                    Order = order
+                    ProductId = item.Id,
+                    OrderId = order.Id
                 };
-                _context.Add(orderItem);
+                _context.OrderItems.Add(orderItem);
             }
 
             _context.SaveChanges();
